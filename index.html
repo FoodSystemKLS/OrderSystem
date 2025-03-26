@@ -693,56 +693,61 @@
     let currentStream = null;
 
     function startScanner(inputId) {
-    const scannerContainer = document.getElementById("scanner-container");
-    const videoElement = document.getElementById("scanner");
+        const scannerContainer = document.getElementById("scanner-container");
+        const videoElement = document.getElementById("scanner");
 
-    scannerContainer.style.display = "flex";
+        scannerContainer.style.display = "flex";
 
-    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-        alert("⚠️ Tu navegador bloqueó el acceso a la cámara. Habilita permisos en configuración.");
-        return;
-    }
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+            alert("⚠️ Tu navegador bloqueó el acceso a la cámara. Habilita permisos en configuración.");
+            return;
+        }
 
-    let constraints = { video: { facingMode: { ideal: "environment" } } };
+        let constraints = { video: { facingMode: { ideal: "environment" } } };
 
-    navigator.mediaDevices.getUserMedia(constraints)
-        .then((stream) => {
-            currentStream = stream;
-            videoElement.srcObject = stream;
-            videoElement.play();
+        navigator.mediaDevices.getUserMedia(constraints)
+            .then((stream) => {
+                currentStream = stream;
+                videoElement.srcObject = stream;
+                videoElement.play();
 
-            // Esperar a que el video se cargue antes de iniciar Quagga
-            videoElement.onloadedmetadata = () => {
-                Quagga.init({
-                    inputStream: {
-                        type: "LiveStream",
-                        target: videoElement
-                    },
-                    decoder: {
-                        readers: ["ean_reader", "code_128_reader", "code_39_reader"]
+                // Esperar a que el video se cargue antes de iniciar Quagga
+                videoElement.onloadedmetadata = () => {
+                    Quagga.init({
+                        inputStream: {
+                            type: "LiveStream",
+                            target: videoElement
+                        },
+                        decoder: {
+                            readers: ["ean_reader", "code_128_reader", "code_39_reader"]
+                        }
+                    }, function (err) {
+                        if (err) {
+                            console.error("❌ Error en Quagga:", err);
+                            alert("⚠️ No se pudo iniciar el escáner.");
+                            return;
+                        }
+                        Quagga.start();
+                    });
+                };
+
+                Quagga.onDetected((result) => {
+                    let scannedCode = result.codeResult.code;                
+                    document.getElementById(inputId).value = scannedCode;
+                    if (inputId == 'employee-id-kelloggs') {
+                        empresa = 'KELLOGGS';
+                    } else {
+                        empresa = 'SUCROLIQ';
                     }
-                }, function (err) {
-                    if (err) {
-                        console.error("❌ Error en Quagga:", err);
-                        alert("⚠️ No se pudo iniciar el escáner.");
-                        return;
-                    }
-                    Quagga.start();
+                    closeScanner();
+                    showFoodSelectionModal(scannedCode, time1, date1, empresa);
                 });
-            };
 
-            Quagga.onDetected((result) => {
-                let scannedCode = result.codeResult.code;                
-                document.getElementById(inputId).value = scannedCode;
-                closeScanner();
-                showFoodSelectionModal(scannedCode, time1, date1);
+            })
+            .catch((err) => {
+                console.error("❌ Error al acceder a la cámara:", err);
+                alert("⚠️ No se pudo acceder a la cámara. Activa permisos en configuración.");
             });
-
-        })
-        .catch((err) => {
-            console.error("❌ Error al acceder a la cámara:", err);
-            alert("⚠️ No se pudo acceder a la cámara. Activa permisos en configuración.");
-        });
     }
 
     function closeScanner() {
