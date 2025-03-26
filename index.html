@@ -756,8 +756,21 @@
             Swal.fire({
                 title: "Empleado " + employeeId,
                 text: "¿Qué va a consumir hoy?",
-                html: `<input type="checkbox" id="coffee"> Café
-                       <input type="checkbox" id="food"> Comida`,
+                html:
+                '<div class="food-selection-container">' +
+                    '<label class="food-card" id="coffee-card">' +
+                        '<input type="checkbox" id="coffee">' +
+                        '<div class="card-content">' +
+                            '<i class="fa-solid fa-mug-hot"></i>' +
+                        '</div>' +
+                    '</label>' +
+                    '<label class="food-card" id="food-card">' +
+                        '<input type="checkbox" id="food">' +
+                        '<div class="card-content">' +
+                            '<i class="fa-solid fa-utensils"></i>' +
+                        '</div>' +
+                    '</label>' +
+                '</div>',
                 confirmButtonText: "Confirmar Pedido",
             }).then(() => {
                 enviarDatos(employeeId, 'date', 'time', empresa);
