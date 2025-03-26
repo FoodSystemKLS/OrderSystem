@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link type="image/png" sizes="32x32" rel="icon" href="favicon.png">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/quagga/0.12.1/quagga.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
@@ -557,51 +558,51 @@
 </head>
 <body>
     <div class="container">
-      <div class="forms-container">
-        <div class="signin-signup">
-          <!-- KLC SECTION -->
-          <form action="#" class="sign-in-form">
-            <h2 class="title">KELLOGGS</h2>
-            <div class="input-field">
-                <i class="fa-solid fa-barcode"></i>
-                <input type="number" id="employee-id-kelloggs" placeholder="ID de Empleado">
-                <button type="button" class="scan-btn" onclick="startScanner('employee-id-kelloggs')">
-                    <i class="fa-solid fa-camera"></i>
-                </button>
+        <div class="forms-container">
+            <div class="signin-signup">
+                <!-- KLC SECTION -->
+                <form action="#" class="sign-in-form">
+                    <h2 class="title">KELLOGGS</h2>
+                    <div class="input-field">
+                        <i class="fa-solid fa-barcode"></i>
+                        <input type="number" id="employee-id-kelloggs" placeholder="ID de Empleado">
+                        <button type="button" class="scan-btn" onclick="startScanner('employee-id-kelloggs')">
+                            <i class="fa-solid fa-camera"></i>
+                        </button>
+                    </div>
+                    <div class="input-field">
+                        <i class="fa-solid fa-calendar-days"></i>
+                        <input type="text" id="date" placeholder="Fecha" disabled/>
+                    </div>
+                    <div class="input-field">
+                        <i class="fas fa-clock"></i>
+                        <input type="text" id="time" placeholder="Hora" disabled/>
+                    </div>
+                    <button type="button" class="btn solid" onclick="enviarDatos('employee-id-kelloggs', 'date', 'time')">Ordenar 🛒</button>
+                </form>
+
+                <!-- SUCROLIQ SECTION -->
+                <form action="#" class="sign-up-form">
+                    <h2 class="title">SUCROLIQ</h2>
+                    <div class="input-field">
+                        <i class="fa-solid fa-barcode"></i>
+                        <input type="number" id="employee-id-sucroliq" placeholder="ID de Empleado">
+                        <button type="button" class="scan-btn" onclick="startScanner('employee-id-sucroliq')">
+                            <i class="fa-solid fa-camera"></i>
+                        </button>
+                    </div>
+                    <div class="input-field">
+                        <i class="fa-solid fa-calendar-days"></i>
+                        <input type="text" id="date1" placeholder="Fecha" disabled/>
+                    </div>
+                    <div class="input-field">
+                        <i class="fas fa-clock"></i>
+                        <input type="text" id="time1" placeholder="Hora" disabled/>
+                    </div>
+                    <button type="button" class="btn solid" onclick="enviarDatos('employee-id-sucroliq', 'date1', 'time1')">Ordenar 🛒</button>
+                </form>
             </div>
-            <div class="input-field">
-                <i class="fa-solid fa-calendar-days"></i>
-                <input type="text" id="date" placeholder="Fecha" disabled/>
-            </div>
-            <div class="input-field">
-                <i class="fas fa-clock"></i>
-                <input type="text" id="time" placeholder="Hora" />
-              </div>
-              <button type="button" class="btn solid" onclick="manualScan('employee-id-kelloggs')">Ordenar 🛒</button>
-            </form>
-          <form action="#" class="sign-up-form">
-            <h2 class="title">SUCROLIQ</h2>
-              <div class="input-field">
-                <i class="fa-solid fa-barcode"></i>
-                <input type="number" id="employee-id-sucroliq" placeholder="ID de Empleado">
-                
-                <!-- Botón para escanear con la cámara -->
-                <button type="button" class="scan-btn" onclick="startScanner('employee-id-sucroliq')">
-                    <i class="fa-solid fa-camera"></i>
-                </button>
-            </div>
-            <div class="input-field">
-                <i class="fa-solid fa-calendar-days"></i>
-                <input type="text" id="date1" placeholder="Fecha" disabled/>
-            </div>
-            <div class="input-field">
-                <i class="fas fa-clock"></i>
-                <input type="text" id="time1" placeholder="Hora" />
-              </div>
-            <button type="button" class="btn solid" onclick="manualScan('employee-id-sucroliq')">Ordenar 🛒</button>
-          </form>
         </div>
-      </div>
 
       <!-- SUCROLIQ SECTION -->
       <div class="panels-container">
@@ -633,6 +634,7 @@
     <div id="scanner-container">
         <video id="scanner"></video>
     </div>
+    
     <script>
       const sign_in_btn = document.querySelector("#sign-in-btn");
       const sign_up_btn = document.querySelector("#sign-up-btn");
@@ -644,145 +646,125 @@
   
       sign_up_btn.addEventListener("click", () => container.classList.add("sign-up-mode"));
       sign_in_btn.addEventListener("click", () => container.classList.remove("sign-up-mode"));
-  
-      function updateTime() {
-          const now = new Date();
-          const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-          const dateStr = now.toLocaleDateString(undefined, options);
-          const timeOptions = { hour: '2-digit', minute: '2-digit', hour12: true };
-          const timeStr = now.toLocaleTimeString(undefined, timeOptions);
-  
-          date.value = dateStr;
-          hour.value = timeStr;
-          date1.value = dateStr;
-          hour1.value = timeStr;
-      }
-  
-      setInterval(updateTime, 1000);
-      updateTime();
-  
-      let currentStream = null;
-  
-      function startScanner(inputId) {
-          const scannerContainer = document.getElementById("scanner-container");
-          const videoElement = document.getElementById("scanner");
-  
-          scannerContainer.style.display = "flex";
-  
-          if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-              alert("⚠️ Tu navegador bloqueó el acceso a la cámara. Habilita permisos en configuración.");
-              return;
-          }
-  
-          let constraints = { video: { facingMode: { ideal: "environment" } } };
-  
-          navigator.mediaDevices.getUserMedia(constraints)
-              .then((stream) => {
-                  currentStream = stream;
-                  videoElement.srcObject = stream;
-                  videoElement.play();
-  
-                  // Esperar a que el video se cargue antes de iniciar Quagga
-                  videoElement.onloadedmetadata = () => {
-                      Quagga.init({
-                          inputStream: {
-                              type: "LiveStream",
-                              target: videoElement
-                          },
-                          decoder: {
-                              readers: ["ean_reader", "code_128_reader", "code_39_reader"]
-                          }
-                      }, function (err) {
-                          if (err) {
-                              console.error("❌ Error en Quagga:", err);
-                              alert("⚠️ No se pudo iniciar el escáner.");
-                              return;
-                          }
-                          Quagga.start();
-                      });
-                  };
-  
-                  Quagga.onDetected((result) => {
-                      let scannedCode = result.codeResult.code;
-                      document.getElementById(inputId).value = scannedCode;
-                      closeScanner();
-                      showFoodSelectionModal(scannedCode);
-                  });
-  
-              })
-              .catch((err) => {
-                  console.error("❌ Error al acceder a la cámara:", err);
-                  alert("⚠️ No se pudo acceder a la cámara. Activa permisos en configuración.");
-              });
-      }
-  
-      function closeScanner() {
-          const scannerContainer = document.getElementById("scanner-container");
-  
-          if (currentStream) {
-              currentStream.getTracks().forEach(track => track.stop());
-          }
-  
-          Quagga.stop();
-          scannerContainer.style.display = "none";
-      }
-// BACKUP FOR MANUAL CODE TYPING
-    function manualScan(inputId) {
-
-      let typedCode = document.getElementById(inputId).value;
-      document.getElementById(inputId).value = typedCode;
-
-      showFoodSelectionModal(typedCode);
-    }
-
-    function showFoodSelectionModal(employeeId) {
-        Swal.fire({
-            title: "Empleado " + employeeId,
-            text: "¿Qué va a consumir hoy?",
-            confirmButtonText: "Confirmar Pedido",
-            showCancelButton: false,
-            html: 
-                '<div class="food-selection-container">' +
-                    '<label class="food-card" id="coffee-card">' +
-                        '<input type="checkbox" id="coffee">' +
-                        '<div class="card-content">' +
-                            '<i class="fa-solid fa-mug-hot"></i>' +
-                        '</div>' +
-                    '</label>' +
-                    '<label class="food-card" id="food-card">' +
-                        '<input type="checkbox" id="food">' +
-                        '<div class="card-content">' +
-                            '<i class="fa-solid fa-utensils"></i>' +
-                        '</div>' +
-                    '</label>' +
-                '</div>',
-            didOpen: function() {
-                document.querySelectorAll(".food-card").forEach(function(card) {
-                    card.addEventListener("click", function() {
-                        var checkbox = this.querySelector("input");
-                        checkbox.checked = !checkbox.checked;
-                        this.classList.toggle("selected", checkbox.checked);
+        // Actualizar fecha y hora en tiempo real
+        function updateTime() {
+            const now = new Date();
+            const options = { year: 'numeric', month: 'long', day: 'numeric' };
+            const timeOptions = { hour: '2-digit', minute: '2-digit', hour12: true };
+            const dateStr = now.toLocaleDateString(undefined, options);
+            const timeStr = now.toLocaleTimeString(undefined, timeOptions);
+    
+            document.getElementById('date').value = dateStr;
+            document.getElementById('time').value = timeStr;
+            document.getElementById('date1').value = dateStr;
+            document.getElementById('time1').value = timeStr;
+        }
+    
+        setInterval(updateTime, 1000);
+        updateTime();
+    
+        // Enviar datos a Google Sheets
+        function enviarDatos(inputId, dateId, timeId, empresa) {
+            const employeeId = document.getElementById(inputId).value;
+            const fecha = document.getElementById(dateId).value;
+            const hora = document.getElementById(timeId).value;
+            const coffee = document.getElementById("coffee")?.checked || false;
+            const food = document.getElementById("food")?.checked || false;
+    
+            if (!employeeId) {
+                alert("⚠️ Debes ingresar un ID de empleado.");
+                return;
+            }
+    
+            fetch("https://script.google.com/macros/s/AKfycbz5wFlm7UJIQJ5sGkWt6xW4ZKP6OeS8j3hxgX3OwZeP34YGVB0h-eci0TnIe6qZG_5-0g/exec", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    inputId: employeeId,
+                    date: fecha,
+                    time: hora,
+                    company: empresa,
+                    coffee: coffee ? "Sí" : "No",
+                    food: food ? "Sí" : "No"
+                })
+            })
+            .then(response => response.text())
+            .then(data => {
+                alert("✅ Pedido enviado con éxito: " + data);
+            })
+            .catch(error => {
+                console.error("❌ Error al enviar datos:", error);
+                alert("⚠️ Hubo un error al enviar los datos.");
+            });
+        }
+    
+        let currentStream = null;
+    
+        // Iniciar el escáner
+        function startScanner(inputId, empresa) {
+            const scannerContainer = document.getElementById("scanner-container");
+            const videoElement = document.getElementById("scanner");
+    
+            scannerContainer.style.display = "flex";
+    
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                alert("⚠️ Tu navegador bloqueó el acceso a la cámara.");
+                return;
+            }
+    
+            navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
+                .then((stream) => {
+                    currentStream = stream;
+                    videoElement.srcObject = stream;
+                    videoElement.play();
+    
+                    Quagga.init({
+                        inputStream: { type: "LiveStream", target: videoElement },
+                        decoder: { readers: ["ean_reader", "code_128_reader", "code_39_reader"] }
+                    }, (err) => {
+                        if (err) {
+                            console.error("❌ Error en Quagga:", err);
+                            alert("⚠️ No se pudo iniciar el escáner.");
+                            return;
+                        }
+                        Quagga.start();
                     });
+    
+                    Quagga.onDetected((result) => {
+                        document.getElementById(inputId).value = result.codeResult.code;
+                        closeScanner();
+                        showFoodSelectionModal(result.codeResult.code, empresa);
+                    });
+    
+                })
+                .catch((err) => {
+                    console.error("❌ Error al acceder a la cámara:", err);
+                    alert("⚠️ Activa permisos en configuración.");
                 });
-            }
-        }).then(function(result) {
-            if (result.isConfirmed) {
-                var coffee = document.getElementById("coffee").checked;
-                var food = document.getElementById("food").checked;
-
-                if (!coffee && !food) {
-                    Swal.fire("Debes seleccionar al menos una opción.", "", "warning");
-                    return;
-                }
-
-                Swal.fire("Pedido confirmado", "Gracias por tu selección.", "success");
-                document.getElementById("employee-id-sucroliq").value = "";
-                document.getElementById("employee-id-kelloggs").value = "";
-            }
-        });
-    }
-
-</script>
+        }
+    
+        // Cerrar escáner
+        function closeScanner() {
+            const scannerContainer = document.getElementById("scanner-container");
+            if (currentStream) currentStream.getTracks().forEach(track => track.stop());
+            Quagga.stop();
+            scannerContainer.style.display = "none";
+        }
+    
+        // Mostrar modal de selección de comida
+        function showFoodSelectionModal(employeeId, empresa) {
+            Swal.fire({
+                title: "Empleado " + employeeId,
+                text: "¿Qué va a consumir hoy?",
+                html: `<input type="checkbox" id="coffee"> Café
+                       <input type="checkbox" id="food"> Comida`,
+                confirmButtonText: "Confirmar Pedido",
+            }).then(() => {
+                enviarDatos(employeeId, 'date', 'time', empresa);
+            });
+        }
+    </script>
+    
   
   </body>
 </html>
