@@ -652,7 +652,7 @@
     // Actualizar fecha y hora en tiempo real
     function updateTime() {
         const now = new Date();
-        const options = { year: 'numeric', month: 'numeric', day: 'numeric' };
+        const options = { year: 'numeric', month: 'short', day: 'numeric' };
         const timeOptions = { hour: '2-digit', minute: '2-digit', hour12: true };
         const dateStr = now.toLocaleDateString(undefined, options);
         const timeStr = now.toLocaleTimeString(undefined, timeOptions);
@@ -660,7 +660,7 @@
         document.getElementById('date').value = dateStr;
         document.getElementById('time').value = timeStr;
         document.getElementById('date1').value = dateStr;
-        document.getElementById('time1').value = timeStr;
+        document.getElementById('time1').value = timeStr;        
     }
 
     setInterval(updateTime, 1000);
@@ -682,7 +682,7 @@
         })
         .then(response => response.text())
         .then(data => {
-            alert("✅ Pedido enviado con éxito: " + data);
+            console.log("✅ Pedido enviado con éxito: " + data);
         })
         .catch(error => {
             console.error("❌ Error al enviar datos:", error);
@@ -816,13 +816,15 @@
                         order = "Café";
                     } else if (food) {
                         order = "Alimento";
-                    } else {
-                        Swal.fire("⚠️ Debes seleccionar al menos una opción.", "", "warning");
+                    } else if(!coffee && !food) {
+                        Swal.fire("Debes seleccionar al menos una opción.", "", "warning");
                         return;
+                    }else{
+                        alert('Ha ocurrido un error inesperado');
                     }
-
                     Swal.fire("Pedido confirmado", "Gracias por tu selección. ", "success");
                     enviarDatos(employeeId,order,time.value,date.value,empresa);
+
                     document.getElementById("employee-id-sucroliq").value = "";
                     document.getElementById("employee-id-kelloggs").value = "";
                 }
