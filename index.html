@@ -557,7 +557,23 @@
         .food-card.selected i {
         color: #4caf50;
         }
-    </style>
+        .counter-display {
+            color: #2e7d32;
+            font-size: .8rem;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 700;
+            margin-bottom: 10px;
+            text-shadow: 0 1px 1px rgba(0,0,0,0.1);
+        }
+        .counter-display {
+    transition: transform 0.3s ease-in-out;
+}
+
+.counter-display.changed {
+    transform: scale(1.1);
+}
+
+            </style>
     <title>REGISTRO DE COMEDOR</title>
 </head>
 <body>
@@ -567,6 +583,7 @@
         <!-- KELLOGGS SECTION -->
         <form action="#" class="sign-in-form">
             <h2 class="title">KELLOGGS</h2>
+            <div id="counter-kelloggs" class="counter-display">Consumos registrados: 0</div>
             <div class="input-field">
                 <i class="fa-solid fa-barcode"></i>
                 <input type="number" id="employee-id-kelloggs" placeholder="ID de Empleado">
@@ -588,6 +605,7 @@
         <!-- SUCROLIQ SECTION -->
         <form action="#" class="sign-up-form">
             <h2 class="title">SUCROLIQ</h2>
+            <div id="counter-sucroliq" class="counter-display">Consumos registrados: 0</div>
             <div class="input-field">
                 <i class="fa-solid fa-barcode"></i>
                 <input type="number" id="employee-id-sucroliq" placeholder="ID de Empleado">
@@ -648,6 +666,44 @@
 
     sign_up_btn.addEventListener("click", () => container.classList.add("sign-up-mode"));
     sign_in_btn.addEventListener("click", () => container.classList.remove("sign-up-mode"));
+    
+    // Obtener info de contador
+    let counters = { KELLOGGS: 0, SUCROLIQ: 0 };
+
+    // 🟢 Cargar contadores desde servidor (inicial)
+    function fetchTotalCounters() {
+        fetch("https://script.google.com/macros/s/AKfycbwnQuXVdF43blUYnmrYmuxUgmgGe9uG5boZr37JI0D5Sphjx4_wtNYD0mVQI0iFPhh2hA/exec")
+            .then(res => res.json())
+            .then(data => {
+                counters = data;
+                updateCounterDisplay();
+            })
+            .catch(err => console.error("❌ Error al obtener contadores:", err));
+    }
+
+    // 🟢 Mostrar en pantalla los valores actuales
+    function updateCounterDisplay() {
+        document.getElementById("counter-kelloggs").innerText = `Consumos registrados: ${counters.KELLOGGS}`;
+        document.getElementById("counter-sucroliq").innerText = `Consumos registrados: ${counters.SUCROLIQ}`;
+    }
+
+    // 🟢 Incremento visual inmediato
+    function incrementVisualCounter(empresa) {
+        if (counters[empresa] !== undefined) {
+            counters[empresa]++;
+            updateCounterDisplay();
+
+            // Sincroniza después de 1.5s con el backend
+            setTimeout(fetchTotalCounters, 1500);
+        }
+    }
+
+    // 🟢 Llamar al iniciar
+    fetchTotalCounters();
+
+
+    // Llamar cuando carga la página
+    fetchTotalCounters();
 
     // Actualizar fecha y hora en tiempo real
     function updateTime() {
@@ -666,8 +722,9 @@
     setInterval(updateTime, 1000);
     updateTime();
 
+
     function enviarDatos(inputId, consumo, dateId, timeId, empresa) {
-        fetch("https://script.google.com/macros/s/AKfycbwmia2fL5M1to3B-024zkjSaEqGBcUyB1kkbI8rfLWfDZnGAXDfKFyeK-J5QXJhgI8fnw/exec", {
+        fetch("https://script.google.com/macros/s/AKfycbwnQuXVdF43blUYnmrYmuxUgmgGe9uG5boZr37JI0D5Sphjx4_wtNYD0mVQI0iFPhh2hA/exec", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             mode: "no-cors",  // 🔹 Evita el error de CORS, pero no recibirás respuesta
@@ -829,6 +886,7 @@
                     }
                     Swal.fire("Pedido confirmado", "Gracias por tu selección. ", "success");
                     enviarDatos(employeeId,order,time.value,date.value,empresa);
+                    incrementVisualCounter(empresa); // Incrementar contador local al instante
 
                     document.getElementById("employee-id-sucroliq").value = "";
                     document.getElementById("employee-id-kelloggs").value = "";
