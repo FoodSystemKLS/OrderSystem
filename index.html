@@ -702,6 +702,9 @@
     const container = document.querySelector(".container");
     const date = document.getElementById('date');
     const date1 = document.getElementById('date1');
+    const time = document.getElementById('time');
+    const time1 = document.getElementById('time1');
+
 
     sign_up_btn.addEventListener("click", () => container.classList.add("sign-up-mode"));
     sign_in_btn.addEventListener("click", () => container.classList.remove("sign-up-mode"));
@@ -1000,6 +1003,8 @@ function enviarDatos(inputId, consumo, dateId, timeId, empresa) {
             excelQueue.push(fila);
             localStorage.setItem(STORAGE_KEY, JSON.stringify(excelQueue));
             localStorage.setItem(TIMESTAMP_KEY, Date.now().toString());
+            actualizarBadgeExcel(); // <- Actualizar burbuja aquí
+
         }
 
         function descargarExcelDeCola() {
@@ -1030,7 +1035,90 @@ function enviarDatos(inputId, consumo, dateId, timeId, empresa) {
         // 🔄 Escucha reconexión o recarga
         window.addEventListener('online', retryPendingRequests);
         window.addEventListener('load', retryPendingRequests);
-    </script>    
-  
+    </script>
+    <script>
+        /* === IndexedDB para pedidos fallidos === */
+        const DB_NAME = "PedidosOffline";
+        const STORE_NAME = "PedidosPendientes";
+        const EXPIRATION_MS = 5 * 24 * 60 * 60 * 1000; // 5 días
+
+        function openDB() {
+        return new Promise((resolve, reject) => {
+            const request = indexedDB.open(DB_NAME, 1);
+            request.onupgradeneeded = event => {
+            const db = event.target.result;
+            if (!db.objectStoreNames.contains(STORE_NAME)) {
+                db.createObjectStore(STORE_NAME, { keyPath: "_id" });
+            }
+            };
+            request.onsuccess = () => resolve(request.result);
+            request.onerror = () => reject(request.error);
+        });
+        }
+
+        function saveToIndexedDB(data) {
+        data._ts = Date.now();
+        data._id = `${data.inputId}-${data._ts}`;
+        openDB().then(db => {
+            const tx = db.transaction(STORE_NAME, "readwrite");
+            const store = tx.objectStore(STORE_NAME);
+            store.put(data);
+        }).catch(console.error);
+        }
+
+        function getAllPendingFromDB() {
+        return new Promise((resolve, reject) => {
+            openDB().then(db => {
+            const tx = db.transaction(STORE_NAME, "readonly");
+            const store = tx.objectStore(STORE_NAME);
+            const request = store.getAll();
+            request.onsuccess = () => {
+                const now = Date.now();
+                const valid = request.result.filter(r => now - r._ts <= EXPIRATION_MS);
+                resolve(valid);
+            };
+            request.onerror = () => reject(request.error);
+            });
+        });
+        }
+
+        function deleteFromIndexedDB(id) {
+        openDB().then(db => {
+            const tx = db.transaction(STORE_NAME, "readwrite");
+            const store = tx.objectStore(STORE_NAME);
+            store.delete(id);
+        });
+        }
+
+        function retryIndexedDBPendingRequests() {
+        getAllPendingFromDB().then(pendings => {
+            pendings.forEach(data => {
+            fetch("https://script.google.com/macros/s/AKfycbwnQuXVdF43blUYnmrYmuxUgmgGe9uG5boZr37JI0D5Sphjx4_wtNYD0mVQI0iFPhh2hA/exec", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                mode: "no-cors",
+                body: JSON.stringify(data)
+            }).then(() => {
+                deleteFromIndexedDB(data._id);
+                console.log(`✅ Reenviado: ${data.inputId}`);
+            }).catch(() => {
+                console.warn(`❌ Falló reenviar: ${data.inputId}`);
+            });
+            });
+        });
+        }
+
+        window.addEventListener("online", retryIndexedDBPendingRequests);
+        window.addEventListener("load", retryIndexedDBPendingRequests);
+
+        // 🎯 Llamar desde catch
+        function savePendingRequest(data) {
+        localStorage.setItem("lastLocalBackup", JSON.stringify(data)); // respaldo redundante
+        saveToIndexedDB(data); // IndexedDB como respaldo principal
+        guardarEnColaExcel(data); // también al Excel local
+        Swal.fire("📦 Pedido guardado offline", "Se enviará al recuperar conexión.", "info");
+        }
+
+    </script>
   </body>
 </html>
